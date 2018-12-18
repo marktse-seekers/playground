@@ -1,0 +1,32 @@
+node(){
+
+stage('test'){
+    waitForPR()
+}
+
+
+}
+
+
+
+
+
+
+def waitForPR() {
+    // this will iterate 40 times with 30 sec sleep in total of 20mins waiting to merge the PR
+    def isMerged = false
+    for (int i = 0; i < 40; i++) {
+        def res = sh ( script: "curl -i -u ${user}:${pwd}  https://api.github.com/repos/SeekersAdvisorsLabs/aqt-mega-service/pulls/${prNumber}/merge | head -n 1 | cut -d ' ' -f2", returnStdout: true).trim();
+        echo "response ${res}"
+        if( "${res}" == '204'){
+            isMerged = true
+            break
+        } else {
+            sh "sleep 30s"
+        }
+    }
+
+    if( !${isMerged} ){
+        exit 1
+    }
+}
